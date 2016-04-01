@@ -15,4 +15,3 @@ public class VolatileTest {
         shared.turnOff();
     }
 }
-
