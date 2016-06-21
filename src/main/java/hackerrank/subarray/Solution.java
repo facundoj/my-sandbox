@@ -13,7 +13,7 @@ public class Solution {
         while (T-- > 0) {
             int n = in.nextInt();
             int i = n;
-            List<Integer> originalList = new ArrayList<>();
+            List<Integer> originalList = new ArrayList<Integer>();
 
             // Populating array
             while (i-- > 0) {
