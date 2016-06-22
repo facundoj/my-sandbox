@@ -90,10 +90,8 @@ public class TopologicalGraph<T extends Comparable> {
         }
 
         TopologicalNode<K> getAnyDependant() {
-            for (TopologicalNode<K> n : dependants) {
-                return n;
-            }
-            return null;
+            Iterator<TopologicalNode<K>> it = dependants.iterator();
+            return it.hasNext() ? it.next() : null;
         }
 
         void removeDependency(TopologicalNode dependency) {
