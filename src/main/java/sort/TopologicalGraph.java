@@ -1,5 +1,6 @@
 package sort;
 
+import java.security.InvalidParameterException;
 import java.util.*;
 
 public class TopologicalGraph<T extends Comparable> {
@@ -32,6 +33,8 @@ public class TopologicalGraph<T extends Comparable> {
             depTN = new TopologicalNode<T>(dependency);
             nodes.put(dependency, depTN);
         }
+        if (depTN.dependsOn(nodeTN)) throw new InvalidParameterException("Circular dependency detected. Aborting.");
+        if (dependency.equals(node)) throw new InvalidParameterException("Cannot depend on itself. Aborting.");
         nodeTN.addDependency(depTN);
         depTN.addDependent(nodeTN);
     }
@@ -104,6 +107,10 @@ public class TopologicalGraph<T extends Comparable> {
 
         boolean hasDependencies() {
             return dependencies.size() > 0;
+        }
+
+        public boolean dependsOn(TopologicalNode<K> node) {
+            return dependencies.contains(node);
         }
     }
 }
