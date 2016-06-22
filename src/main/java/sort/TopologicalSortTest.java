@@ -2,7 +2,8 @@ package sort;
 
 public class TopologicalSortTest {
     public static void main(String[] args) {
-        TopologicalGraph g = new TopologicalGraph();
+        TopologicalGraph<String> g = new TopologicalGraph<String>();
+
         g.addDependency("F", "E");
         g.addDependency("F", "D");
         g.addDependency("E", "B");

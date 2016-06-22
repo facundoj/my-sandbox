@@ -2,120 +2,110 @@ package sort;
 
 import java.util.*;
 
-public class TopologicalGraph {
-    private Map<String, TopologicalNode> nodes;
+public class TopologicalGraph<T extends Comparable> {
+    // value --> Node
+    private Map<T, TopologicalNode<T>> nodes;
 
     public TopologicalGraph() {
-        this.nodes = new HashMap<String, TopologicalNode>();
+        this.nodes = new HashMap<T, TopologicalNode<T>>();
     }
 
-    public void addDependency(String node, String dependency) {
-        TopologicalNode nodeTN = nodes.get(node);
+    public void removeDependency(T node, T dependency) {
+        TopologicalNode<T> nodeTN = nodes.get(node);
+        TopologicalNode<T> depTN = nodes.get(dependency);
+        removeDependency(nodeTN, depTN);
+    }
+
+    public void removeDependency(TopologicalNode<T> node, TopologicalNode<T> dependency) {
+        node.removeDependency(dependency);
+        dependency.removeDependant(node);
+    }
+
+    public void addDependency(T node, T dependency) {
+        TopologicalNode<T> nodeTN = nodes.get(node);
         if (nodeTN == null) {
-            nodeTN = new TopologicalNode(node);
+            nodeTN = new TopologicalNode<T>(node);
             nodes.put(node, nodeTN);
         }
-        TopologicalNode depTN = nodes.get(dependency);
+        TopologicalNode<T> depTN = nodes.get(dependency);
         if (depTN == null) {
-            depTN = new TopologicalNode(dependency);
+            depTN = new TopologicalNode<T>(dependency);
             nodes.put(dependency, depTN);
         }
         nodeTN.addDependency(depTN);
         depTN.addDependent(nodeTN);
     }
 
-    public List<String> getOrdered() {
-        List<String> out = new ArrayList<String>(nodes.size());
+    public List<T> getOrdered() {
+        List<T> out = new ArrayList<T>(nodes.size());
         // Works as topological sort's S, which contains all those nodes ready to be loaded (dependencies fulfilled)
-        LinkedList<TopologicalNode> independents = getIndependents();
+        LinkedList<TopologicalNode<T>> independents = getIndependents();
         while (!independents.isEmpty()) {
-            // Curr will be added to the output queue
-            TopologicalNode curr = independents.poll();
-            TopologicalNode dependant = curr.getAnyDependant();
-            while (dependant != null) {
+            // curr will be added to the output queue
+            TopologicalNode<T> curr = independents.poll();
+            TopologicalNode<T> dependant;
+            for (dependant = curr.getAnyDependant(); dependant != null; dependant = curr.getAnyDependant()) {
                 // Removing edges coming from curr
-                dependant.removeDependency(curr);
-                curr.removeDependant(dependant);
+                removeDependency(dependant, curr);
+                // If no dependencies left, it's ready to be loaded
                 if (!dependant.hasDependencies()) independents.add(dependant);
-                dependant = curr.getAnyDependant();
             }
-            out.add(curr.getName());
+            out.add(curr.getValue());
         }
         return out;
     }
 
-    private LinkedList<TopologicalNode> getIndependents() {
-        LinkedList<TopologicalNode> indeps = new LinkedList<TopologicalNode>();
-        for (String node : nodes.keySet()) {
-            TopologicalNode topoNode = nodes.get(node);
-            if (!topoNode.hasDependencies()) {
-                indeps.add(topoNode);
+    private LinkedList<TopologicalNode<T>> getIndependents() {
+        LinkedList<TopologicalNode<T>> independents = new LinkedList<TopologicalNode<T>>();
+        for (T node : nodes.keySet()) {
+            TopologicalNode<T> topologicalNode = nodes.get(node);
+            if (!topologicalNode.hasDependencies()) {
+                independents.add(topologicalNode);
             }
         }
-        return indeps;
+        return independents;
     }
 
-    private static class TopologicalNode implements Comparable {
-        private Set<TopologicalNode> dependencies;
-        private Set<TopologicalNode> dependants;
-        private String name;
+    private static class TopologicalNode<K> {
+        private Set<TopologicalNode<K>> dependencies;
+        private Set<TopologicalNode<K>> dependants;
+        private K value;
 
-        public TopologicalNode(String name) {
-            this.name = name;
-            dependants = new TreeSet<TopologicalNode>();
-            dependencies = new TreeSet<TopologicalNode>();
+        TopologicalNode(K value) {
+            this.value = value;
+            dependants = new HashSet<TopologicalNode<K>>();
+            dependencies = new HashSet<TopologicalNode<K>>();
         }
 
-        public String getName() {
-            return name;
+        K getValue() {
+            return value;
         }
 
-        public void addDependency(TopologicalNode dependency) {
+        void addDependency(TopologicalNode<K> dependency) {
             dependencies.add(dependency);
         }
 
-        public void addDependent(TopologicalNode dependent) {
+        void addDependent(TopologicalNode<K> dependent) {
             dependants.add(dependent);
         }
 
-        public TopologicalNode getAnyDependant() {
-            for (TopologicalNode n : dependants) {
+        TopologicalNode<K> getAnyDependant() {
+            for (TopologicalNode<K> n : dependants) {
                 return n;
             }
             return null;
         }
 
-        public void removeDependency(TopologicalNode dependency) {
+        void removeDependency(TopologicalNode dependency) {
             dependencies.remove(dependency);
         }
 
-        public void removeDependant(TopologicalNode dependant) {
+        void removeDependant(TopologicalNode dependant) {
             dependants.remove(dependant);
         }
 
-        public boolean hasDependencies() {
+        boolean hasDependencies() {
             return dependencies.size() > 0;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TopologicalNode that = (TopologicalNode) o;
-
-            return name != null ? name.equals(that.name) : that.name == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            return name != null ? name.hashCode() : 0;
-        }
-
-        public int compareTo(Object o) {
-            TopologicalNode other = (TopologicalNode) o;
-            return getName().compareTo(other.getName());
         }
     }
 }
