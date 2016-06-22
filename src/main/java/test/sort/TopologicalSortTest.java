@@ -1,7 +1,8 @@
-package sort;
+package test.sort;
 
 import org.junit.Assert;
 import org.junit.Test;
+import sort.TopologicalGraph;
 
 import java.util.HashSet;
 import java.util.Set;
