@@ -12,7 +12,7 @@ public class MinHeap {
     public void add(int value) {
         lastElementIndex++;
         storage[lastElementIndex] = value;
-        heapify();
+        bubbleUp();
     }
 
     public boolean hasNext() {
@@ -28,14 +28,14 @@ public class MinHeap {
         storage[1] = storage[lastElementIndex];
         lastElementIndex--;
 
-        reorder();
+        heapify();
 
         return min;
     }
 
-    // O(log2 n) - because i --> i / 2 --> i / 4 --> ..
+    // O(log n) - because i --> i / 2 --> i / 4 --> i / 8 --> ..
     // Precondition: left and right trees are MinHeaps
-    private void reorder() {
+    private void heapify() {
         int i = 1;
         while (i < lastElementIndex) {
             int left_i = i << 1;
@@ -66,8 +66,9 @@ public class MinHeap {
         }
     }
 
-    // O(log2 n)
-    private void heapify() {
+    // O(log n)
+    // Precondition: Is a MinHeap, but the last element - Let it bubble-up as far as it needs to become MinHeap again
+    private void bubbleUp() {
         int i = lastElementIndex;
 
         if (i < 1) return;
