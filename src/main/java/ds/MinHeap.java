@@ -33,32 +33,36 @@ public class MinHeap {
         return min;
     }
 
-    // O(log2 n)
+    // O(log2 n) - because i --> i / 2 --> i / 4 --> ..
+    // Precondition: left and right trees are MinHeaps
     private void reorder() {
         int i = 1;
         while (i < lastElementIndex) {
-            int curr = storage[i];
-            // Has right child
-            if ((i * 2 + 1) <= lastElementIndex) {
-                int left = storage[i * 2];
-                int right = storage[i * 2 + 1];
-                if (left < curr && left < right) {
-                    // Min at left
-                    storage[i] = left;
-                    storage[i * 2] = curr;
-                    i = i * 2;
-                } else if (right < curr && right < left) {
-                    // Min at right
-                    storage[i] = right;
-                    storage[i * 2 + 1] = curr;
-                    i = i * 2 + 1;
-                } else break; // No swapping - done
-            } else if (i * 2 <= lastElementIndex && storage[i * 2] < curr) {
-                // Min at left - last element
-                storage[i] = storage[i * 2];
-                storage[i * 2] = curr;
-                break; // No next - done
-            } else break; // No swapping - done
+            int left_i = i << 1;
+            int right_i = i << 1 + 1;
+            int min_i;
+
+            if (left_i <= lastElementIndex && storage[left_i] < storage[i]) {
+                min_i = left_i;
+            } else {
+                min_i = i;
+            }
+
+            if (right_i <= lastElementIndex && storage[right_i] < storage[min_i]) {
+                min_i = right_i;
+            }
+
+            // If it's unordered
+            if (min_i != i) {
+                // swap!
+                int aux = storage[i];
+                storage[i] = storage[min_i];
+                storage[min_i] = aux;
+
+                i = min_i;
+            } else {
+                break;
+            }
         }
     }
 
