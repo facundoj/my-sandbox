@@ -4,7 +4,7 @@ public class BitRepresenting {
     public static void main(String[] args) {
         String representation = represent(541435521);
         System.out.println(representation);
-        System.out.println(toNumber(representation.replaceAll(" ", "")));
+        System.out.println(toNumber(representation));
     }
 
     private static String represent(int value) {
@@ -38,7 +38,8 @@ public class BitRepresenting {
         return parsed;
     }
 
-    private static int toNumber(String seq) {
+    private static int toNumber(String inSeq) {
+        String seq = inSeq.replaceAll("\\W", "");
         char[] chars = seq.toCharArray();
         int n = 0;
 
